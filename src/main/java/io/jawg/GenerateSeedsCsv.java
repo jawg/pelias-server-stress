@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 eBusiness Information
+ * Copyright 2015-2019 Jawg
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,41 +12,37 @@
  */
 package io.jawg;
 
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
-import java.util.Properties;
 import java.util.Random;
-
-// sbt "run-main io.jawg.GenerateSeedsCsv"
 
 public class GenerateSeedsCsv {
 
-    public static void main(String[] args) throws IOException {
+  public static void main(String[] args) throws IOException {
+    Config propertiesFromSystem = ConfigFactory.systemProperties();
+    Config propertiesFromFile = ConfigFactory.load("parameters.properties");
+    Config properties = propertiesFromSystem.withFallback(propertiesFromFile);
 
-        Properties prop = new Properties();
-        String propFileName = "main.parameters.properties";
+    int targetSeedCount = properties.getInt("simulation.users.count");
 
-        InputStream inputStream = GenerateSeedsCsv.class.getClassLoader().getResourceAsStream(propFileName);
+    File file = new File(properties.getString("simulation.seeds"));
+    file.createNewFile();
+    PrintWriter writer = new PrintWriter(file);
 
-        prop.load(inputStream);
-        int targetSeedCount = Integer.parseInt(prop.getProperty("simulation.users.count"));
+    Random rand = new Random();
 
-        File file = new File("src/test/resources/seeds.csv");
-        file.createNewFile();
-        PrintWriter writer = new PrintWriter(file);
-
-        Random rand = new Random();
-
-        writer.append("seed");
-        writer.append("\n");
-        writer.flush();
-        for (int i = 0; i < targetSeedCount; i++) {
-            int randInt = Math.abs(rand.nextInt());
-            writer.append(String.valueOf(randInt));
-            writer.append("\n");
-            writer.flush();
-        }
+    writer.append("seed");
+    writer.append("\n");
+    writer.flush();
+    for (int i = 0; i < targetSeedCount; i++) {
+      int randInt = Math.abs(rand.nextInt());
+      writer.append(String.valueOf(randInt));
+      writer.append("\n");
+      writer.flush();
     }
+  }
 }

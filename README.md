@@ -10,7 +10,7 @@ The Testing scenario is the following:
 
 ## Requirements
 
--   SBT : <http://www.scala-sbt.org/download.html>
+-   Java : <https://adoptopenjdk.net/>
 -   Scala : <http://www.scala-lang.org/download/>
 
 Scala plugin for IntelliJ platform also helps.
@@ -21,15 +21,30 @@ This script has been tested and approved by both Gatling and Gatling Frontline s
 
 -   Clone the project
     `git clone https://github.com/jawg/pelias-server-stress.git`sh
--   Set your environment properties in {projectRoot}/src/test/resources
+-   Set your environment properties in {projectRoot}/src/main/resources
     Properties are server.url, simulation.users.count...
 -   Browse the project root and execute the following commands
-    `sbt "run-main io.jawg.GenerateSeedsCsv"` to generate seeds for all simulated users. Skip this step if you want to use a custom seeds file or keep the previous one and produce the exact same test.
-    `sbt run "gatling:testOnly io.jawg.PeliasSimulation"` to run the stress test.
+    `./gradlew shadowJar` to build the project
+-   Now you can generate seeds for all simulated users with this command `GENERATE_SEEDS=true ./bin/pelias-server-stress`. Skip this step if you want to use a custom seeds file or keep the previous one and produce the exact same test
+-   In order to run the stress test use `./bin/pelias-server-stress`.
+
+You can override properties with environment variables when you use the script `pelias-server-stress`.
+
+Available environments are :
+
+-    `SERVER_URL`: Set your custon server URL
+-    `REGIONS_FILE`: Where your region file is
+-    `SEEDS_FILE`: Where your seeds file
+-    `USERS_COUNT`: Set users count for your simulation (and number of seeds)
+-    `USERS_RAMP_TIME`: Set the ramp time for your users
+-    `GENERATE_SEEDS`: When not empty, will generate only seeds
+-    `AUTO_GENERATE_SEEDS`: When not empty, will generate seed and run the simulation
+
+A docker image is also available `docker build -t jawg/pelias-server-stress .`
 
 ## License
 
-Copyright 2017 eBusiness Information
+Copyright 2017-2019 Jawg
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 

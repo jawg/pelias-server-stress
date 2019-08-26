@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 eBusiness Information
+ * Copyright 2015-2019 Jawg
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,9 +16,11 @@ import java.util.Random
 
 import com.typesafe.config.ConfigFactory
 import io.gatling.core.Predef._
+import io.gatling.core.structure.PopulationBuilder
 import io.gatling.http.Predef._
-import scala.concurrent.duration._
+import io.gatling.http.protocol.HttpProtocolBuilder
 
+import scala.concurrent.duration._
 
 object Parameters {
 
@@ -51,35 +53,41 @@ class PeliasSimulation extends Simulation {
 
   import Parameters._
 
-  val httpProtocol = http.baseURLs(PELIAS_URLS)
+  val httpProtocol: HttpProtocolBuilder = http
+    .shareConnections
 
-  val scn = scenario("PeliasSimulation")
-    .feed(csv(CSV_FILE).circular)
-    .feed(csv(SEED_FILE).circular)
-    .exec { session =>
-      val seed = session("seed").as[String].toLong
-      val rand = new Random(seed)
 
-      val latMin = session("LatMin").as[String].toDouble
-      val latMax = session("LatMax").as[String].toDouble
-      val lngMin = session("LngMin").as[String].toDouble
-      val lngMax = session("LngMax").as[String].toDouble
+  def scenarios(urls: List[String]): List[PopulationBuilder] =
+    urls.map { url =>
+      scenario("PeliasSimulation")
+        .feed(csv(CSV_FILE).circular)
+        .feed(csv(SEED_FILE).circular)
+        .exec { session =>
+          val seed = session("seed").as[String].toLong
+          val rand = new Random(seed)
 
-      val lng = rand.nextDouble() * (lngMax - lngMin) + lngMin
-      val lat = rand.nextDouble() * (latMax - latMin) + latMin
+          val latMin = session("LatMin").as[String].toDouble
+          val latMax = session("LatMax").as[String].toDouble
+          val lngMin = session("LngMin").as[String].toDouble
+          val lngMax = session("LngMax").as[String].toDouble
 
-      session
-        .set("lat", lat)
-        .set("lon", lng)
+          val lng = rand.nextDouble() * (lngMax - lngMin) + lngMin
+          val lat = rand.nextDouble() * (latMax - latMin) + latMin
+
+          session
+            .set("lat", lat)
+            .set("lon", lng)
+        }
+        .exec(
+          http(s"$${Region}").get("/v1/reverse")
+            .queryParam("size", 1)
+            .queryParam("point.lat", "${lat}")
+            .queryParam("point.lon", "${lon}")
+            .check(status.is(200))
+        )
+        .inject(rampUsers(USERS) during RAMP_TIME)
+        .protocols(httpProtocol.baseUrl(url))
     }
-    .exec(
-      http(s"$${Region}").get("/v1/reverse")
-        .queryParam("size", 1)
-        .queryParam("point.lat", "${lat}")
-        .queryParam("point.lon", "${lon}")
-        .check(status.is(200))
-    )
 
-  setUp(scn.inject(rampUsers(USERS) over RAMP_TIME))
-    .protocols(httpProtocol)
+  setUp(scenarios(PELIAS_URLS))
 }

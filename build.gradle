@@ -1,0 +1,29 @@
+plugins {
+  id 'maven'
+  id 'scala'
+  id "com.github.johnrengelman.shadow" version "5.0.0"
+}
+
+group = 'io.jawg'
+version = '1.0.0'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+shadowJar {
+  version = ''
+  manifest {
+    attributes 'Main-Class': 'io.gatling.app.Gatling'
+  }
+}
+
+repositories {
+  mavenLocal()
+  mavenCentral()
+}
+
+dependencies {
+  compile "org.scala-lang:scala-library:2.12.8"
+  compile "io.gatling.highcharts:gatling-charts-highcharts:3.2.0"
+}
+
