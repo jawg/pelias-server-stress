@@ -25,7 +25,6 @@ proguard-project.txt
 
 # Generated files
 # ###################
-bin/
 gen/
 build/
 

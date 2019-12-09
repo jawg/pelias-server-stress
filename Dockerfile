@@ -24,4 +24,4 @@ ENV SERVER_URL="" \
 COPY --from=builder /opt/gatling/build/libs/pelias-server-stress-all.jar $GATLING_JAR
 COPY bin/pelias-server-stress /bin/
 
-CMD simulation.sh
+ENTRYPOINT ["/bin/pelias-server-stress"]

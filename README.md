@@ -34,7 +34,9 @@ Available environments are :
 
 -    `SERVER_URL`: Set your custon server URL
 -    `REGIONS_FILE`: Where your region file is
+-    `OA_FILE`: Where your openaddresses file is
 -    `SEEDS_FILE`: Where your seeds file
+-    `AUTOCOMPLETE`: Set it to true if you wants autocomplete endpoint instead of search
 -    `USERS_COUNT`: Set users count for your simulation (and number of seeds)
 -    `USERS_RAMP_TIME`: Set the ramp time for your users
 -    `GENERATE_SEEDS`: When not empty, will generate only seeds

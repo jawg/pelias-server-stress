@@ -1,7 +1,7 @@
 plugins {
   id 'maven'
   id 'scala'
-  id "com.github.johnrengelman.shadow" version "5.0.0"
+  id "com.github.johnrengelman.shadow" version "5.2.0"
 }
 
 group = 'io.jawg'
@@ -10,12 +10,16 @@ version = '1.0.0'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
+jar.enabled = false
+
 shadowJar {
   version = ''
   manifest {
     attributes 'Main-Class': 'io.gatling.app.Gatling'
   }
 }
+
+tasks.build.finalizedBy(shadowJar)
 
 repositories {
   mavenLocal()

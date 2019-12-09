@@ -14,42 +14,12 @@ package io.jawg
 
 import java.util.Random
 
-import com.typesafe.config.ConfigFactory
 import io.gatling.core.Predef._
 import io.gatling.core.structure.PopulationBuilder
 import io.gatling.http.Predef._
 import io.gatling.http.protocol.HttpProtocolBuilder
 
-import scala.concurrent.duration._
-
-object Parameters {
-
-  val propertiesFromSystem = ConfigFactory.systemProperties()
-  val propertiesFromFile = ConfigFactory.load("parameters.properties")
-  val properties = propertiesFromSystem.withFallback(propertiesFromFile)
-
-  // Url of the server to stress test
-  val PELIAS_URLS = properties.getString("server.url").trim().split(",").toList
-
-  // File to load containing the region rectangles where users will choose their initial latitudes and longitudes.
-  // sample.csv contains an example of the format used.
-  val CSV_FILE = properties.getString("simulation.regions")
-
-  // File to load containing the region rectangles where users will choose their initial latitudes and longitudes.
-  // sample.csv contains an example of the format used.
-  val SEED_FILE = properties.getString("simulation.seeds")
-
-  // Amount of users. Users will be dispatched as equally as possible across regions.
-  val USERS = properties.getString("simulation.users.count").toInt
-
-  // Users amount can be ramped up over this duration in seconds
-  val RAMP_TIME = properties.getString("simulation.users.ramp.time").toInt.seconds
-
-  // Note :
-  // The time units can be specified, for instance 1.minute, 1000.millis, etc
-}
-
-class PeliasSimulation extends Simulation {
+class PeliasReverseSimulation extends Simulation {
 
   import Parameters._
 
@@ -60,7 +30,7 @@ class PeliasSimulation extends Simulation {
   def scenarios(urls: List[String]): List[PopulationBuilder] =
     urls.map { url =>
       scenario("PeliasSimulation")
-        .feed(csv(CSV_FILE).circular)
+        .feed(csv(REGIONS_CSV_FILE).circular)
         .feed(csv(SEED_FILE).circular)
         .exec { session =>
           val seed = session("seed").as[String].toLong
