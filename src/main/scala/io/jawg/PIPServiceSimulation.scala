@@ -19,7 +19,7 @@ import io.gatling.core.structure.PopulationBuilder
 import io.gatling.http.Predef._
 import io.gatling.http.protocol.HttpProtocolBuilder
 
-class PeliasOASimulation extends Simulation {
+class PIPServiceSimulation extends Simulation {
 
   import Parameters._
 
@@ -29,35 +29,28 @@ class PeliasOASimulation extends Simulation {
 
   def scenarios(urls: List[String]): List[PopulationBuilder] =
     urls.map { url =>
-      val endpoint = if (AUTOCOMPLETE) "/v1/autocomplete" else "/v1/search"
-      scenario("PeliasOASimulation")
-        .feed(csv(OA_CSV_FILE).circular)
+      scenario("PIPServiceSimulation")
+        .feed(csv(REGIONS_CSV_FILE).circular)
         .feed(csv(SEED_FILE).circular)
         .exec { session =>
-          val number = session("NUMBER").as[String]
-          val street = session("STREET").as[String]
-          val city = session("CITY").as[String]
-          val district = session("DISTRICT").as[String]
-          val postcode = session("POSTCODE").as[String]
-          val region = session("REGION").as[String]
+          val seed = session("seed").as[String].toLong
+          val rand = new Random(seed)
 
-          var text = ""
+          val latMin = session("LatMin").as[String].toDouble
+          val latMax = session("LatMax").as[String].toDouble
+          val lngMin = session("LngMin").as[String].toDouble
+          val lngMax = session("LngMax").as[String].toDouble
 
-          if (!number.isEmpty) text += number
-          if (!street.isEmpty) text += s" $street"
-          if (!city.isEmpty) text += s", $city"
-          if (!district.isEmpty && city.isEmpty) text += s", $district"
-          if (!region.isEmpty) text += s", $region"
-          if (!postcode.isEmpty) text += s" $postcode"
+          val lng = rand.nextDouble() * (lngMax - lngMin) + lngMin
+          val lat = rand.nextDouble() * (latMax - latMin) + latMin
 
           session
-            .set("text", text)
+            .set("lat", lat)
+            .set("lon", lng)
         }
         .exec(
-          http(s"OpenAddresses").get(endpoint)
-            .queryParam("text", "${text}")
+          http(s"$${Region}").get("/${lon}/${lat}")
             .check(status.is(200))
-            .check(jsonPath("$..errors").notExists)
         )
         .inject(rampUsers(USERS) during RAMP_TIME)
         .protocols(httpProtocol.baseUrl(url))

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2019 Jawg
+ * Copyright 2015-2020 Jawg
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -29,11 +29,11 @@ class PeliasReverseSimulation extends Simulation {
 
   def scenarios(urls: List[String]): List[PopulationBuilder] =
     urls.map { url =>
-      scenario("PeliasSimulation")
+      scenario("PeliasReverseSimulation")
         .feed(csv(REGIONS_CSV_FILE).circular)
         .feed(csv(SEED_FILE).circular)
         .exec { session =>
-          val seed = session("seed").as[String].toLong
+          val seed: Long = session("seed").as[String].toLong
           val rand = new Random(seed)
 
           val latMin = session("LatMin").as[String].toDouble

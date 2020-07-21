@@ -20,6 +20,8 @@ fi
 
 if [ "$1" = "oa" ] || [ "$1" = "openaddresses" ]; then
   simulation=io.jawg.PeliasOASimulation
+elif [ "$1" = "pip" ] || [ "$1" = "pip-service" ]; then
+  simulation=io.jawg.PIPServiceSimulation
 else
   simulation=io.jawg.PeliasReverseSimulation
 fi
@@ -36,6 +38,10 @@ DEFAULT_JAVA_OPTS="${DEFAULT_JAVA_OPTS} -Djava.net.preferIPv4Stack=true -Djava.n
 #-Dlogback.configurationFile=/path/to/config.xml
 if [ -z "$GATLING_JAR" ]; then
   GATLING_JAR="$BIN_DIR/../build/libs/pelias-server-stress-all.jar"
+fi
+
+if [ -n "$GATLING_PROPERTIES" ]; then
+  GATLING_OPTS="$GATLING_OPTS -Dproperties=$GATLING_PROPERTIES"
 fi
 
 if [ -n "$SERVER_URL" ]; then

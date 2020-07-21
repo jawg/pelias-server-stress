@@ -13,13 +13,14 @@ FROM openjdk:8-jre-slim
 WORKDIR /opt/gatling
 
 ENV GATLING_JAR=/opt/gatling/pelias-server-stress.jar
-ENV SERVER_URL="" \
-    REGIONS_FILE="" \
-    SEEDS_FILE="" \
-    USERS_COUNT="" \
-    USERS_RAMP_TIME="" \
-    GENERATE_SEEDS="" \
-    AUTO_GENERATE_SEEDS=""
+ENV GATLING_PROPERTIES=
+ENV SERVER_URL=
+ENV REGIONS_FILE=
+ENV SEEDS_FILE=
+ENV USERS_COUNT=
+ENV USERS_RAMP_TIME=
+ENV GENERATE_SEEDS=
+ENV AUTO_GENERATE_SEEDS=
 
 COPY --from=builder /opt/gatling/build/libs/pelias-server-stress-all.jar $GATLING_JAR
 COPY bin/pelias-server-stress /bin/
