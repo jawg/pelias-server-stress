@@ -1,6 +1,6 @@
 #!/bin/bash
 
-## Copyright 2015-2019 Jawg
+## Copyright 2015-2025 Jawg
 ## Licensed under the Apache License, Version 2.0 (the "License");
 ## you may not use this file except in compliance with the License.
 ## You may obtain a copy of the License at
@@ -19,11 +19,13 @@ else
 fi
 
 if [ "$1" = "oa" ] || [ "$1" = "openaddresses" ]; then
-  simulation=io.jawg.PeliasOASimulation
+  simulation=io.jawg.gatling.pelias.PeliasOASimulation
 elif [ "$1" = "pip" ] || [ "$1" = "pip-service" ]; then
-  simulation=io.jawg.PIPServiceSimulation
+  simulation=io.jawg.gatling.pelias.PIPServiceSimulation
+elif [ "$1" = "spatial" ]; then
+  simulation=io.jawg.gatling.pelias.SpatialServiceSimulation
 else
-  simulation=io.jawg.PeliasReverseSimulation
+  simulation=io.jawg.gatling.pelias.PeliasReverseSimulation
 fi
 
 BIN_DIR=`dirname $(realpath $0)`
@@ -31,9 +33,10 @@ BIN_DIR=`dirname $(realpath $0)`
 DEFAULT_JAVA_OPTS="-server"
 DEFAULT_JAVA_OPTS="${DEFAULT_JAVA_OPTS} -Xmx1G"
 DEFAULT_JAVA_OPTS="${DEFAULT_JAVA_OPTS} -XX:+UseG1GC -XX:MaxGCPauseMillis=30 -XX:G1HeapRegionSize=16m -XX:InitiatingHeapOccupancyPercent=75 -XX:+ParallelRefProcEnabled"
-DEFAULT_JAVA_OPTS="${DEFAULT_JAVA_OPTS} -XX:+PerfDisableSharedMem -XX:+AggressiveOpts -XX:+OptimizeStringConcat"
+DEFAULT_JAVA_OPTS="${DEFAULT_JAVA_OPTS} -XX:+PerfDisableSharedMem -XX:+OptimizeStringConcat"
 DEFAULT_JAVA_OPTS="${DEFAULT_JAVA_OPTS} -XX:+HeapDumpOnOutOfMemoryError"
 DEFAULT_JAVA_OPTS="${DEFAULT_JAVA_OPTS} -Djava.net.preferIPv4Stack=true -Djava.net.preferIPv6Addresses=false"
+DEFAULT_JAVA_OPTS="${DEFAULT_JAVA_OPTS} --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED"
 
 #-Dlogback.configurationFile=/path/to/config.xml
 if [ -z "$GATLING_JAR" ]; then
@@ -77,6 +80,5 @@ if [ -n "$GENERATE_SEEDS" ] || [ -n "$AUTO_GENERATE_SEEDS" ]; then
 fi
 
 if [ -z "$GENERATE_SEEDS" ] || [ -n "$AUTO_GENERATE_SEEDS" ]; then
-    ${JAVA} ${DEFAULT_JAVA_OPTS} ${JAVA_OPTS} ${GATLING_OPTS} -jar ${GATLING_JAR} -s $simulation
+    ${JAVA} ${DEFAULT_JAVA_OPTS} ${JAVA_OPTS} ${GATLING_OPTS} -jar ${GATLING_JAR} -s $simulation -rf ./results
 fi
-

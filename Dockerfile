@@ -1,14 +1,14 @@
-FROM openjdk:8-jdk-slim AS builder
+FROM eclipse-temurin:21-jdk AS builder
 
 WORKDIR /opt/gatling
 
-COPY build.gradle gradlew settings.gradle ./
+COPY build.gradle.kts gradlew settings.gradle.kts gradle.properties ./
 COPY src src
 COPY gradle gradle
 
 RUN ./gradlew shadowJar
 
-FROM openjdk:8-jre-slim
+FROM eclipse-temurin:21-jre
 
 WORKDIR /opt/gatling
 

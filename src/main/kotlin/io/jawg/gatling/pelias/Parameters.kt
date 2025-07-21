@@ -1,10 +1,10 @@
-package io.jawg
+package io.jawg.gatling.pelias
 
+import com.typesafe.config.Config
+import com.typesafe.config.ConfigFactory
 import java.io.File
-
-import com.typesafe.config.{Config, ConfigFactory}
-
-import scala.concurrent.duration._
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.toJavaDuration
 
 object Parameters {
 
@@ -13,7 +13,7 @@ object Parameters {
   private val properties = propertiesFromSystem.withFallback(propertiesFromFile)
 
   // Url of the server to stress test
-  val PELIAS_URLS: List[String] = properties.getString("server.url").trim().split(",").toList
+  val PELIAS_URLS: List<String> = properties.getString("server.url").trim().split(",").toList()
 
   // File to load containing the region rectangles where users will choose their initial latitudes and longitudes.
   // regions.csv contains an example of the format used.
@@ -31,17 +31,17 @@ object Parameters {
   val SEED_FILE: String = properties.getString("simulation.seeds")
 
   // Amount of users. Users will be dispatched as equally as possible across regions.
-  val USERS: Int = properties.getString("simulation.users.count").toInt
+  val USERS: Int = properties.getString("simulation.users.count").toInt()
 
   // Users amount can be ramped up over this duration in seconds
-  val RAMP_TIME: FiniteDuration = properties.getString("simulation.users.ramp.time").toInt.seconds
+  val RAMP_TIME = properties.getString("simulation.users.ramp.time").toInt().seconds.toJavaDuration()
 
-  private def fileProperties(): Config = {
+  private fun fileProperties(): Config {
     val defaultProperties = ConfigFactory.load("parameters.properties")
-    if (!propertiesFromSystem.hasPath("properties")) {
+    return if (!propertiesFromSystem.hasPath("properties")) {
       defaultProperties
     } else {
-      ConfigFactory.parseFileAnySyntax(new File(propertiesFromSystem.getString("properties")))
+      ConfigFactory.parseFileAnySyntax(File(propertiesFromSystem.getString("properties")))
         .withFallback(defaultProperties)
     }
   }
